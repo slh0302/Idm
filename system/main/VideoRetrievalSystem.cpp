@@ -26,8 +26,8 @@
 /// psocket
 int socket_as_client ;
 bool connected_to_fileserver = false;
-const char* DEBUG_SEARCH_SERVER_IP="162.105.95.33";
-const char* DEBUG_FILE_SERVER_IP="162.105.95.91";
+const char* DEBUG_SEARCH_SERVER_IP="127.0.0.1";
+const char* DEBUG_FILE_SERVER_IP="219.223.195.25";
 #define FILE_SERVER_PORT 3333
 bool connectToFileServer(FeatureMsgInfo* fmi);
 /// info string
@@ -71,10 +71,10 @@ FeatureWithBoxInfo* boxInfo = NULL;
 FeatureBinary::DataSet* dataSet = NULL;
 FeatureMsgInfo* dataInfoSet = NULL;
 
-
+std::string ROOT_DIR = "/home/zangxh/Idm/data/"
 // Binary Model File
-std::string binary_proto_file = "/home/slh/faiss_index/model/deploy_googlenet_hash.prototxt";
-std::string binary_proto_weight = "/home/slh/faiss_index/model/wd_google_all_hash_relu_iter_120000.caffemodel";
+std::string binary_proto_file = ROOT_DIR + "bcar.prototxt";
+std::string binary_proto_weight = ROOT_DIR + "bcar.caffemodel";
 // task list
 
 // time func
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     /// Init Binary Index
 
     /// Load Binary Table
-    std::string table_filename="/home/slh/faiss_index/index_store/table.index";
+    std::string table_filename= ROOT_DIR + "table.index";
     if(!std::fstream(table_filename.c_str())) {
         std::cout << "Table File Wrong" << std::endl;
         return 1;
@@ -131,19 +131,14 @@ int main(int argc, char *argv[])
     std::cout<<"Binary Caffe Net Init Done"<<std::endl;
 
     // server status
-    int server_sockfd;//服务器端套接字
-    int client_sockfd;//客户端套接字
+    int server_sockfd;//服务器端套接�?    int client_sockfd;//客户端套接字
     int len;
-    struct sockaddr_in my_addr;   //服务器网络地址结构体
-    struct sockaddr_in remote_addr; //客户端网络地址结构体
-    socklen_t sin_size;
-    char buf[BUFSIZ];  //数据传送的缓冲区
-    memset(&my_addr,0,sizeof(my_addr)); //数据初始化--清零
+    struct sockaddr_in my_addr;   //服务器网络地址结构�?    struct sockaddr_in remote_addr; //客户端网络地址结构�?    socklen_t sin_size;
+    char buf[BUFSIZ];  //数据传送的缓冲�?    memset(&my_addr,0,sizeof(my_addr)); //数据初始�?-清零
     my_addr.sin_family = AF_INET; //设置为IP通信
-    my_addr.sin_addr.s_addr = INADDR_ANY;//服务器IP地址--允许连接到所有本地地址上
-    my_addr.sin_port=htons(18000); //服务器端口号
+    my_addr.sin_addr.s_addr = INADDR_ANY;//服务器IP地址--允许连接到所有本地地址�?    my_addr.sin_port=htons(18000); //服务器端口号
 
-    /*创建服务器端套接字--IPv4协议，面向连接通信，TCP协议*/
+    /*创建服务器端套接�?-IPv4协议，面向连接通信，TCP协议*/
     if((server_sockfd = socket(PF_INET,SOCK_STREAM,0))<0)
     {
         perror("socket");
@@ -154,14 +149,14 @@ int main(int argc, char *argv[])
         perror("####ServerMsg###:setsockopt failed");
         return false;
     }
-    /*将套接字绑定到服务器的网络地址上*/
+    /*将套接字绑定到服务器的网络地址�?/
     if (bind(server_sockfd,(struct sockaddr *)&my_addr,sizeof(struct sockaddr))<0)
     {
         perror("bind");
         return 1;
     }
 
-    /*监听连接请求--监听队列长度为5*/
+    /*监听连接请求--监听队列长度�?*/
     listen(server_sockfd,10);
 
     sin_size=sizeof(struct sockaddr_in);
@@ -179,8 +174,7 @@ int main(int argc, char *argv[])
         }
         printf("accept client %s\n",inet_ntoa(remote_addr.sin_addr));
 
-        //len= send(client_sockfd,"Welcome to my server\n",21,0);//发送欢迎信息
-        /*等待客户端连接请求到达*/
+        //len= send(client_sockfd,"Welcome to my server\n",21,0);//发送欢迎信�?        /*等待客户端连接请求到�?/
 
         // double info
         int typeNum = -1;
@@ -263,7 +257,7 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
             std::string result_path = "";
             // output the result
             /// tmp doing  TODO:: Change
-            system("rm -rf /home/slh/pro/run/originResult/* ");
+            system("rm -rf /home/zangxh/tmp/run/ori/* ");
             int return_num = 20 < index_num ? 20 : index_num;
             for (int j = 0; j < return_num; j++) {
                 FeatureWithBoxInfo tempInfo = boxInfo[sorttable[j].info];
@@ -281,10 +275,10 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
 
         }
 
-        std::ofstream reout("/home/slh/pro/run/runResult/map.txt",std::ios::out);
+        std::ofstream reout("home/zangxh/tmp/run/res/map.txt",std::ios::out);
         std::map<int, int*>::iterator it;
         reout<<(t1 - t0)<<std::endl;
-        std::string ROOT_DIR = "run/originResult/";
+        std::string ROOT_DIR = "";
         for(int i = 0;i < file_name_list.size(); i++){
             //std::cout<<file_name_list[i]<<std::endl;
             reout<<ROOT_DIR + file_name_list[i]<<std::endl;

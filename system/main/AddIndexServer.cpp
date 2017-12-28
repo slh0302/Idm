@@ -35,8 +35,8 @@ using namespace std;
 #define DEBUG_DUMP_RECVMSG 0
 #define DEBUG_DUMP_RECVSTM 0
 
-const char* DEBUG_SEARCH_SERVER_IP="162.105.95.33";
-const char* DEBUG_FILE_SERVER_IP="162.105.95.91";
+const char* DEBUG_SEARCH_SERVER_IP ="162.105.95.33";
+const char* DEBUG_FILE_SERVER_IP ="162.105.95.91";
 
 class ClientInfo{
 private:

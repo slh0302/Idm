@@ -13,7 +13,7 @@ target_link_libraries(
         libboost_filesystem.so
         libboost_thread.so
         libopencv_core.so
-	libopencv_highgui.so
+		libopencv_highgui.so
 #        libopencv_imgcodecs.so
         libopencv_imgproc.so
         libopenblas.so.0
@@ -25,6 +25,6 @@ target_link_libraries(
         AddIndexServer
         libopencv_core.so
         libopencv_highgui.so
-	libopencv_imgproc.so
+		libopencv_imgproc.so
         pthread
 )

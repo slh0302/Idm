@@ -1,3 +1,5 @@
 caffe/
 build/
 data/
+.idea/
+cmake-build-debug/

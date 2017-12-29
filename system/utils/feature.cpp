@@ -13,7 +13,7 @@
 #include "caffe/util/db.hpp"
 using namespace caffe;
 namespace feature_index{
-
+#define USE_ENCRYTION_FILE 1
     /**
      *
      * @param proto_file
@@ -24,14 +24,20 @@ namespace feature_index{
      */
     caffe::Net<float>* FeatureIndex::InitNet(std::string proto_file, std::string proto_weight) {
         //net work init
-//        DCode(proto_file, "p");
-//        DCode(proto_weight, "m");
+#if USE_ENCRYTION_FILE
+        DCode(proto_file, "P");
+        DCode(proto_weight, "M");
+        proto_file = ".tmpP";
+        proto_weight = ".tmpM";
+#endif
         std::string pretrained_binary_proto(proto_weight);
         std::string proto_model_file(proto_file);
         Net<float>* net(new Net<float>(proto_model_file, caffe::TEST));
         net->CopyTrainedLayersFrom(pretrained_binary_proto);
-//        remove(".tmpm");
-//        remove(".tmpp");
+#if USE_ENCRYTION_FILE
+        remove(proto_file.c_str());
+        remove(proto_weight.c_str());
+#endif
         return net;
     }
 

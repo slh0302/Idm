@@ -26,18 +26,19 @@
 /// psocket
 int socket_as_client ;
 bool connected_to_fileserver = false;
-const char* DEBUG_SEARCH_SERVER_IP="192.168.13.105";
-const char* DEBUG_FILE_SERVER_IP="192.168.13.104";
+char* DEBUG_SEARCH_SERVER_IP="192.168.13.105";
+char* DEBUG_FILE_SERVER_IP="192.168.13.104";
 #define FILE_SERVER_PORT 3333
 bool connectToFileServer(FeatureMsgInfo* fmi);
 /// info string
 #define DATA_COUNT 43455
 #define DATA_COUNT_PERSON 8046
 #define DATA_BINARY 371
-const string IndexFileName = "Video.index";
-const string IndexFileNameInfo = "Video.info";
-const string IndexReLoad = ".IndexReLoad";
-const int FEATURE_LENGTH = 128;
+std::string File_prefix = "./";
+string IndexFileName = File_prefix + "Video.index";
+string IndexFileNameInfo = File_prefix+  "Video.info";
+string IndexReLoad = File_prefix + ".IndexReLoad";
+int FEATURE_LENGTH = 128;
 boost::mutex INDEX_MUTEX_LOCK;
 int DATA_LENGTH = 0;
 int INFO_LENGTH = 0;
@@ -71,7 +72,8 @@ FeatureWithBoxInfo* boxInfo = NULL;
 FeatureBinary::DataSet* dataSet = NULL;
 FeatureMsgInfo* dataInfoSet = NULL;
 
-std::string ROOT_DIR = "/home/zangxh/Idm/data/";
+std::string ROOT_DIR = "../data/";
+std::string ROOT_FONT = "./";
 // Binary Model File
 std::string binary_proto_file = ROOT_DIR + "bcar.prototxt";
 std::string binary_proto_weight = ROOT_DIR + "bcar.caffemodel";
@@ -112,6 +114,20 @@ int main(int argc, char *argv[])
     /// Init Feature Gpu
     feature_index::FeatureIndex fea_index;
 
+    if(argc < 3) {
+        std::cout << "argc num not enough." << std::endl;
+        std::cout << "arg1: 'Video.info' location" << std::endl;
+        std::cout << "arg2: this server's ip" << std::endl;
+        std::cout << "arg3: Temp data file path" << std::endl;
+        return 1;
+    }
+    File_prefix = argv[1];
+    DEBUG_SEARCH_SERVER_IP = argv[2];
+    ROOT_FONT = argv[3];
+    IndexFileName =  File_prefix + "Video.index";
+    IndexFileNameInfo = File_prefix + "Video.info";
+    IndexReLoad = File_prefix + ".IndexReLoad";
+
     /// Init Binary Index
 
     /// Load Binary Table
@@ -131,14 +147,14 @@ int main(int argc, char *argv[])
     std::cout<<"Binary Caffe Net Init Done"<<std::endl;
 
     // server status
-    int server_sockfd;//服务器端套接�?   
+    int server_sockfd;//服务器端套接�?   
 	int client_sockfd;//客户端套接字
     int len;
-    struct sockaddr_in my_addr;   //服务器网络地址结构�?    
-	struct sockaddr_in remote_addr; //客户端网络地址结构�?    
+    struct sockaddr_in my_addr;   //服务器网络地址结构�?    
+	struct sockaddr_in remote_addr; //客户端网络地址结构�?    
 	socklen_t sin_size;
-    char buf[BUFSIZ];  //数据传送的缓冲�?    
-	memset(&my_addr,0,sizeof(my_addr)); //数据初始�?-清零
+    char buf[BUFSIZ];  //数据传送的缓冲�?    
+	memset(&my_addr,0,sizeof(my_addr)); //数据初始�?-清零
     my_addr.sin_family = AF_INET; //设置为IP通信
     my_addr.sin_addr.s_addr = INADDR_ANY;
 	my_addr.sin_port=htons(18000); //服务器端口号
@@ -224,7 +240,7 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
         // read data
         std::vector<cv::Mat> pic_list;
         std::vector<int> label;
-        cv::Mat cv_origin = cv::imread(file_name,1);
+        cv::Mat cv_origin = cv::imread(ROOT_FONT + "/searchFIle/" + file_name,1);
         cv::Mat cv_img ;
         cv::resize(cv_origin,cv_img, cv::Size(224,224));
         pic_list.push_back(cv_img);
@@ -258,7 +274,8 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
             std::string result_path = "";
             // output the result
             /// tmp doing  TODO:: Change
-            system("rm -rf /home/zangxh/tmp/run/ori/* ");
+            std::string ori_path = "rm -rf " + ROOT_FONT + "/run/ori/*";
+            system(ori_path.c_str());
             int return_num = 20 < index_num ? 20 : index_num;
             for (int j = 0; j < return_num; j++) {
                 FeatureWithBoxInfo tempInfo = boxInfo[sorttable[j].info];
@@ -276,12 +293,11 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
 
         }
 
-        std::ofstream reout("home/zangxh/tmp/run/res/map.txt",std::ios::out);
+        std::ofstream reout(ROOT_FONT + "/run/res/map.txt",std::ios::out);
         std::map<int, int*>::iterator it;
         reout<<(t1 - t0)<<std::endl;
         std::string ROOT_DIR = "";
         for(int i = 0;i < file_name_list.size(); i++){
-            //std::cout<<file_name_list[i]<<std::endl;
             reout<<ROOT_DIR + file_name_list[i]<<std::endl;
         }
         reout.close();

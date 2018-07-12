@@ -100,10 +100,14 @@ namespace feature_index {
                                               std::vector<cv::Mat> pic_list, std::vector<int> label);
         void MemoryPictureFeatureExtraction(int count, float* dq, caffe::Net<float> *_net, std::string blob_name,
                                        std::vector<cv::Mat> pic_list, std::vector<int> label);
-
+        /// code length == 128
         unsigned char* MemoryPictureFeatureExtraction(int count, unsigned char* dq, caffe::Net<float> *_net,
                                                                     std::string blob_name, std::vector<cv::Mat> pic_list,
                                                                     std::vector<int> label);
+        /// code length == 1024
+        unsigned char* MemoryBinaryPictureFeatureExtraction(int count, unsigned char* dq, caffe::Net<float> *_net,
+                                                      std::string blob_name, std::vector<cv::Mat> pic_list,
+                                                      std::vector<int> label);
         /// float to binary
         uchar* floatToUnsignedChar(const float* data, int count);
         /// evaluate

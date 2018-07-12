@@ -35,8 +35,9 @@ using namespace std;
 #define DEBUG_DUMP_RECVMSG 0
 #define DEBUG_DUMP_RECVSTM 0
 
-const char* DEBUG_SEARCH_SERVER_IP ="162.105.95.33";
-const char* DEBUG_FILE_SERVER_IP ="162.105.95.91";
+// TODO: NEED CHANGE
+const char* DEBUG_SEARCH_SERVER_IP ="162.105.95.94";
+const char* DEBUG_FILE_SERVER_IP ="222.29.111.46";
 
 class ClientInfo{
 private:
@@ -89,6 +90,7 @@ const string IndexReLoad = ".IndexReLoad";
 pthread_mutex_t mutex_index;
 pthread_cond_t index_pause = PTHREAD_COND_INITIALIZER;
 const int FEATURE_LENGTH = 128;
+// TODO: NEED CHANGE
 const string IndexFileName = "Video.index";
 const string IndexFileNameInfo = "Video.info";
 int InfoDataBaseNum = 0;
@@ -434,6 +436,7 @@ void* packageDecode(void*){
                         cout<<"receive one picture"<<endl;
                         /// store in one place
                         /// /home/slh/pro/run/originResult
+                        // TODO: NEED CHANGE
                         std::string ROOT_DIR = "/home/slh/pro/run/originResult/";
                         char* featureData = (char*)(currPkg->data + sizeof(MSGPackageInfo) + sizeof(FeatureMsgInfo));
                         FeatureMsgInfo* fmi = (FeatureMsgInfo*)(currPkg->data + sizeof(MSGPackageInfo));
@@ -515,10 +518,10 @@ int main()  {
     pthread_detach(clientProcessThread);
     pthread_detach(pkgProcessThread);
     bool server_is_running;
-    //do{
+    do{
     server_is_running = acceptClients();
     usleep(1000);
-    //}while(!server_is_running);
+    }while(!server_is_running);
 
 #if FCMDEC
     FCMDEC_Termino();

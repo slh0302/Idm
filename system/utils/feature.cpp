@@ -574,6 +574,87 @@ namespace feature_index{
 
     }
 
+
+    /**
+     *
+     * @param count
+     * @param dq
+     * @param _net
+     * @param blob_name
+     * @param pic_list
+     * @param label
+     * @return
+     */
+    unsigned char* FeatureIndex::MemoryBinaryPictureFeatureExtraction(int count,unsigned  char* dq, caffe::Net<float> *_net, std::string blob_name, std::vector<cv::Mat> pic_list, std::vector<int> label) {
+
+        caffe::MemoryDataLayer<float> *m_layer = (caffe::MemoryDataLayer<float> *)_net->layers()[0].get();
+        m_layer->AddMatVector(pic_list, label);
+
+        std::string extract_feature_blob_names(blob_name);
+        /////modify by su
+        std::cout<<"batch size: "<< _net->blob_by_name(extract_feature_blob_names)->num()<<std::endl;
+        int num_mini_batches = count / _net->blob_by_name(extract_feature_blob_names)->num();
+        // init memory
+        unsigned char* feature_dbs = dq;
+        std::vector<caffe::Blob<float>*> input_vec;
+        Datum datum;
+        const boost::shared_ptr<Blob<float> > feature_blob =
+                _net->blob_by_name(extract_feature_blob_names);
+        int batch_size = feature_blob->num();
+        int dim_features = feature_blob->count() / batch_size;
+        for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index) {
+            //std::cout<<"start"<<std::endl;
+            _net->Forward(input_vec);
+            const float* feature_blob_data;
+            for (int n = 0; n < batch_size; ++n) {
+                feature_blob_data = feature_blob->cpu_data() + feature_blob->offset(n);
+                for (int d = 0; d < dim_features; ++d) {
+                    unsigned char feature_temp = 0;
+                    if (feature_blob_data[d] > 0.001) {
+                        feature_temp = 1;
+                    }
+                    else {
+                        feature_temp = 0;
+                    }
+                    feature_dbs[d + (n + batch_index*batch_size)*dim_features] = feature_temp;
+                } // for (int d = 0; d < dim_features / 8; ++d)
+            }  // for (int n = 0; n < batch_size; ++n)
+        }  // for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index)
+
+        // write the remain batch
+        bool isRemain=false;
+        int remain = count - num_mini_batches*(_net->blob_by_name(extract_feature_blob_names)->num());
+        if(remain >0 ){
+            isRemain=true;
+            _net->Forward(input_vec);
+        }
+        if(isRemain){
+            const float* feature_blob_data;
+            for (int n = 0; n < remain; ++n) {//data new
+                feature_blob_data = feature_blob->cpu_data() + feature_blob->offset(n);
+                for (int d = 0; d < dim_features ; ++d) {
+                    unsigned char feature_temp = 0;
+                    if (feature_blob_data[d] > 0.001) {
+                        feature_temp = 1;
+                    }
+                    else {
+                        feature_temp = 0;
+                    }
+                    feature_dbs[d + (n + num_mini_batches*batch_size)*dim_features] = feature_temp;
+                } // for (int d = 0; d < dim_features/8; ++d)
+            }  // for (int n = 0; n < remian; ++n)
+        }  // for (int i = 0; i < num_features; ++i)
+
+        std::cout<<"Successfully"<<std::endl;
+        return feature_dbs;
+
+
+    }
+
+
+
+
+
     /**
      *
      * @param count

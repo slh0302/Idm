@@ -14,7 +14,7 @@ target_link_libraries(
         libboost_thread.so
         libopencv_core.so
 		libopencv_highgui.so
-#        libopencv_imgcodecs.so
+        libopencv_imgcodecs.so
         libopencv_imgproc.so
         libopenblas.so.0
         ${PROJECT_SOURCE_DIR}/caffe/build/lib/libcaffe.so
@@ -24,6 +24,7 @@ target_link_libraries(
 target_link_libraries(
         AddIndexServer
         libopencv_core.so
+		libopencv_imgcodecs.so
         libopencv_highgui.so
 		libopencv_imgproc.so
         pthread

@@ -26,8 +26,8 @@
 /// psocket
 int socket_as_client ;
 bool connected_to_fileserver = false;
-char* DEBUG_SEARCH_SERVER_IP="192.168.13.105";
-char* DEBUG_FILE_SERVER_IP="192.168.13.104";
+char* DEBUG_SEARCH_SERVER_IP="162.105.95.94";
+char* DEBUG_FILE_SERVER_IP="222.29.111.46";
 #define FILE_SERVER_PORT 3333
 bool connectToFileServer(FeatureMsgInfo* fmi);
 /// info string
@@ -38,7 +38,7 @@ std::string File_prefix = "./";
 string IndexFileName = File_prefix + "Video.index";
 string IndexFileNameInfo = File_prefix+  "Video.info";
 string IndexReLoad = File_prefix + ".IndexReLoad";
-int FEATURE_LENGTH = 128;
+const int FEATURE_LENGTH = 128;
 boost::mutex INDEX_MUTEX_LOCK;
 int DATA_LENGTH = 0;
 int INFO_LENGTH = 0;
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
     File_prefix = argv[1];
     DEBUG_SEARCH_SERVER_IP = argv[2];
     ROOT_FONT = argv[3];
-    IndexFileName =  File_prefix + "Video.index";
-    IndexFileNameInfo = File_prefix + "Video.info";
+    IndexFileName =  File_prefix + "/Video.index";
+    IndexFileNameInfo = File_prefix + "/Video.info";
     IndexReLoad = File_prefix + ".IndexReLoad";
 
     /// Init Binary Index
@@ -240,7 +240,8 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
         // read data
         std::vector<cv::Mat> pic_list;
         std::vector<int> label;
-        cv::Mat cv_origin = cv::imread(ROOT_FONT + "/searchFIle/" + file_name,1);
+        std::cout<<"File: "<< ROOT_FONT + "/searchFile/" + file_name << std::endl;
+        cv::Mat cv_origin = cv::imread(ROOT_FONT + "/searchFile/" + file_name,1);
         cv::Mat cv_img ;
         cv::resize(cv_origin,cv_img, cv::Size(224,224));
         pic_list.push_back(cv_img);
@@ -249,7 +250,7 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
         // Extract feature
         unsigned char *data = new unsigned char[ 1024 ];
         double t0 = elapsed();
-        feature_index.MemoryPictureFeatureExtraction(count, data, bnet, "fc_hash/relu", pic_list, label);
+        feature_index.MemoryBinaryPictureFeatureExtraction(count, data, bnet, "fc_hash/relu", pic_list, label);
         std::cout<<"done data"<<std::endl;
 
         // Retrival k-NN
@@ -274,7 +275,7 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
             std::string result_path = "";
             // output the result
             /// tmp doing  TODO:: Change
-            std::string ori_path = "rm -rf " + ROOT_FONT + "/run/ori/*";
+            std::string ori_path = "rm -rf " + ROOT_FONT + "/run/originResult/*";
             system(ori_path.c_str());
             int return_num = 20 < index_num ? 20 : index_num;
             for (int j = 0; j < return_num; j++) {
@@ -293,7 +294,7 @@ void ClientBinaryThread(int client_sockfd, char* remote_addr, feature_index::Fea
 
         }
 
-        std::ofstream reout(ROOT_FONT + "/run/res/map.txt",std::ios::out);
+        std::ofstream reout(ROOT_FONT + "/run/runResult/map.txt",std::ios::out);
         std::map<int, int*>::iterator it;
         reout<<(t1 - t0)<<std::endl;
         std::string ROOT_DIR = "";
@@ -334,7 +335,7 @@ int ChangeDataNum(int num, FILE* _f) {
 void LoadDataFromFile(){
     /// BEGIN SETTING
     FILE* _init = fopen(IndexFileNameInfo.c_str(), "rb");
-    cout<< "BEGIN LOAD" <<endl;
+    cout<< "BEGIN LOAD " << IndexFileNameInfo.c_str() <<endl;
     if (_init == NULL) {
         cout<< "No File" <<endl;
         _init = fopen(IndexFileNameInfo.c_str(), "wb");
@@ -443,8 +444,8 @@ bool connectToFileServer(FeatureMsgInfo* fmi){
     struct sockaddr_in kk;
     kk.sin_family=AF_INET;
     kk.sin_port=htons(FILE_SERVER_PORT);
-    kk.sin_addr.s_addr = inet_addr(fmi->ServerIP);
-
+    //kk.sin_addr.s_addr = inet_addr(fmi->ServerIP);
+    kk.sin_addr.s_addr = inet_addr(DEBUG_FILE_SERVER_IP);
     if(connect(socket_as_client,(struct sockaddr*)&kk,sizeof(kk)) <0) {
         perror("####ServerMsg###:connect error");
         return false;

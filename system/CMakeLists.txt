@@ -3,7 +3,7 @@ if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-
+find_package(CUDA)
 SET(OpenCV_DIR /usr/local/share/OpenCV/OpenCVConfig.cmake)
 
 find_package(OpenCV REQUIRED)
@@ -21,8 +21,9 @@ include_directories(
         /usr/local/include
         /usr/include
         /share/local/included
+        /usr/local/cuda-8.0/targets/x86_64-linux/include
         ${PROJECT_SOURCE_DIR}/caffe/include
-	${PROJECT_SOURCE_DIR}/caffe/build/include
+	    ${PROJECT_SOURCE_DIR}/caffe/build/include
 )
 link_directories(
         ${PROJECT_SOURCE_DIR}/lib
